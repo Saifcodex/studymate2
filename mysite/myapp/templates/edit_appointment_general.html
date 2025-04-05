@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<!-- Main Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <img src="https://via.placeholder.com/40x40" alt="StudyMate Logo" class="me-2">
+            <span class="fw-bold">Study<span class="text-primary">Mate</span></span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="home.html">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="tutorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Find Tutors
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="tutorsDropdown">
+                        <li><a class="dropdown-item" href="{% url 'tutor_list_general' %}"><i class="fas fa-user-graduate me-2"></i>General Tutors</a></li>
+                        <li><a class="dropdown-item" href="{% url 'tutor_list_chapter' %}"><i class="fas fa-book-open me-2"></i>Chapter-wise Tutors</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-atom me-2"></i>Subject Specialists</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="resourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Resources
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="resourcesDropdown">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-book me-2"></i>Books</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-pencil-alt me-2"></i>Stationery</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-sticky-note me-2"></i>Study Notes</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Scholarships</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Blog</a>
+                </li>
+            </ul>
+            <div class="d-flex ms-lg-3">
+                {% if user.is_authenticated %}
+                    {% if user.is_superuser %}
+                        <a href="{% url 'admin:index' %}" class="btn btn-outline-primary me-2">Admin Panel</a>
+                    {% else %}
+                        <a href="{% url 'user_profile' %}" class="btn btn-outline-primary me-2">{{ user.username }}</a>
+                    {% endif %}
+                    <a href="{% url 'logout' %}" class="btn btn-outline-secondary">Sign out</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary me-2">Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-outline-primary">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0">Edit Appointment</h2>
+                <a href="{% url 'user_profile' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                </a>
+            </div>
+
+            <!-- Appointment Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-calendar-edit me-2"></i>Appointment Details</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Student Information Section -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3"><i class="fas fa-user-graduate me-2"></i>Student Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="studentName" class="form-label">Student Name</label>
+                                    <input type="text" class="form-control" id="studentName" name="student_name"
+                                           value="{{ general_appointment.student_name }}" required>
+                                    <div class="invalid-feedback">
+                                        Please provide student name.
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phoneNumber" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phoneNumber" name="phone_number"
+                                           value="{{ general_appointment.phone_number }}" required>
+                                    <div class="invalid-feedback">
+                                        Please provide phone number.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Guardian Information Section -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3"><i class="fas fa-user-shield me-2"></i>Guardian Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="guardianName" class="form-label">Guardian Name</label>
+                                    <input type="text" class="form-control" id="guardianName" name="guardian_name"
+                                           value="{{ general_appointment.guardian_name }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="guardianPhone" class="form-label">Guardian Phone</label>
+                                    <input type="tel" class="form-control" id="guardianPhone" name="guardian_phone"
+                                           value="{{ general_appointment.guardian_phone }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Class Information Section -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3"><i class="fas fa-book-open me-2"></i>Class Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="className" class="form-label">Class Name</label>
+                                    <input type="text" class="form-control" id="className" name="class_name"
+                                           value="{{ general_appointment.class_name }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <input type="text" class="form-control" id="subject" name="subject"
+                                           value="{{ general_appointment.subject }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Information Section -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="division" class="form-label">Division</label>
+                                    <select id="division" name="division" class="form-select" required>
+                                        <option value="" disabled>Select Division</option>
+                                        {% for division in divisions %}
+                                        <option value="{{ division }}" {% if general_appointment.division == division %}selected{% endif %}>{{ division }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="district" class="form-label">District</label>
+                                    <select id="district" name="district" class="form-select" required>
+                                        <option value="" disabled>Select District</option>
+                                        {% for district in districts %}
+                                        <option value="{{ district }}" {% if general_appointment.district == district %}selected{% endif %}>{{ district }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label for="address" class="form-label">Address</label>
+                                    <input type="text" class="form-control" id="address" name="address"
+                                           value="{{ general_appointment.address }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Schedule Information Section -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3"><i class="fas fa-clock me-2"></i>Schedule Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="preferred_days" class="form-label">Preferred Days</label>
+                                    <input type="text" class="form-control" id="preferred_days" name="preferred_days"
+                                           value="{{ general_appointment.preferred_days }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="preferred_time" class="form-label">Preferred Time</label>
+                                    <input type="text" class="form-control" id="preferred_time" name="preferred_time"
+                                           value="{{ general_appointment.preferred_time }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-2"></i>Update Appointment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form Validation Script -->
+<script>
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(function () {
+  'use strict'
+
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  var forms = document.querySelectorAll('.needs-validation')
+
+  // Loop over them and prevent submission
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+</script>
+
+<!-- Dynamic District Selection Based on Division -->
+<script>
+document.getElementById('division').addEventListener('change', function() {
+    const division = this.value;
+    const districtSelect = document.getElementById('district');
+
+    // Here you would typically make an AJAX call to get districts for the selected division
+    // For now, we'll just enable all districts
+    districtSelect.disabled = false;
+
+    // In a real implementation, you would:
+    // 1. Clear current district options
+    // 2. Fetch districts for selected division via AJAX
+    // 3. Populate the district select with new options
+});
+</script>
+
+{% endblock %}

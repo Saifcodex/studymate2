@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<!-- Main Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <img src="https://via.placeholder.com/40x40" alt="StudyMate Logo" class="me-2">
+            <span class="fw-bold">Study<span class="text-primary">Mate</span></span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="home.html">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="tutorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Find Tutors
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="tutorsDropdown">
+                        <li><a class="dropdown-item" href="{% url 'tutor_list_general' %}"><i class="fas fa-user-graduate me-2"></i>General Tutors</a></li>
+                        <li><a class="dropdown-item" href="{% url 'tutor_list_chapter' %}"><i class="fas fa-book-open me-2"></i>Chapter-wise Tutors</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-atom me-2"></i>Subject Specialists</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="resourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Resources
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="resourcesDropdown">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-book me-2"></i>Books</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-pencil-alt me-2"></i>Stationery</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-sticky-note me-2"></i>Study Notes</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Scholarships</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Blog</a>
+                </li>
+            </ul>
+            <div class="d-flex ms-lg-3">
+                {% if user.is_authenticated %}
+                    {% if user.is_superuser %}
+                        <a href="{% url 'admin:index' %}" class="btn btn-outline-primary me-2">Admin Panel</a>
+                    {% else %}
+                        <a href="{% url 'user_profile' %}" class="btn btn-outline-primary me-2">{{ user.username }}</a>
+                    {% endif %}
+                    <a href="{% url 'logout' %}" class="btn btn-outline-secondary">Sign out</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary me-2">Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-outline-primary">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- End Navbar -->
+
+{% block extra-styles %}
+    <link rel="stylesheet" href="{% static 'css/tutor_list_general.css' %}">
+{% endblock %}
+
+<!-- Main Content -->
+<div class="container my-5">
+    <div class="row">
+        <!-- Filter Section -->
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">Sort & Filter</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{% url 'tutor_list_general' %}">
+                        <div class="mb-3">
+                            <h6 class="fw-bold mb-2">Gender</h6>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gender" value="Male" id="male" {% if request.GET.gender == "Male" %}checked{% endif %}>
+                                <label class="form-check-label" for="male">Male</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gender" value="Female" id="female" {% if request.GET.gender == "Female" %}checked{% endif %}>
+                                <label class="form-check-label" for="female">Female</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="specialty" class="form-label fw-bold">Specialities</label>
+                            <select class="form-select" name="specialty" id="specialty">
+                                <option selected disabled>Select Specialty</option>
+                                {% for specialty in specialties %}
+                                <option value="{{ specialty }}" {% if request.GET.specialty == specialty %}selected{% endif %}>{{ specialty }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="division" class="form-label fw-bold">Division</label>
+                            <select class="form-select" name="division" id="division">
+                                <option selected disabled>Select Division</option>
+                                {% for division in divisions %}
+                                <option value="{{ division }}" {% if request.GET.division == division %}selected{% endif %}>{{ division }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="district" class="form-label fw-bold">District</label>
+                            <select class="form-select" name="district" id="district">
+                                <option selected disabled>Select District</option>
+                                {% for district in districts %}
+                                <option value="{{ district }}" {% if request.GET.district == district %}selected{% endif %}>{{ district }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="background" class="form-label fw-bold">Background</label>
+                            <select class="form-select" name="background" id="background">
+                                <option selected disabled>Select Background</option>
+                                {% for background in backgrounds %}
+                                <option value="{{ background }}" {% if request.GET.background == background %}selected{% endif %}>{{ background }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="medium" class="form-label fw-bold">Medium</label>
+                            <select class="form-select" name="medium" id="medium">
+                                <option selected disabled>Select Medium</option>
+                                {% for medium in mediums %}
+                                <option value="{{ medium }}" {% if request.GET.medium == medium %}selected{% endif %}>{{ medium }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">Clear Filters</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tutor List Section -->
+        <div class="col-md-8 col-lg-9">
+            {% if generaltutor %}
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    {% for tutor in generaltutor %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <div class="row g-0">
+                                <div class="col-md-4 d-flex align-items-center justify-content-center p-3">
+                                    <img src="{{ tutor.image.url }}" alt="{{ tutor.name }}" class="img-fluid rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ tutor.name }}</h5>
+                                        <p class="card-text text-muted mb-2">
+                                            <i class="fas fa-graduation-cap me-2"></i>{{ tutor.qualification }}
+                                        </p>
+                                        <p class="card-text text-muted mb-2">
+                                            <i class="fas fa-star me-2"></i>{{ tutor.specialty }} ({{ tutor.tuition_experience }} years exp)
+                                        </p>
+                                        <p class="card-text text-muted mb-2">
+                                            <i class="fas fa-language me-2"></i>{{ tutor.medium }} medium
+                                        </p>
+                                        <p class="card-text text-muted mb-2">
+                                            <i class="fas fa-map-marker-alt me-2"></i>{{ tutor.district }}, {{ tutor.division }}
+                                        </p>
+                                        <p class="card-text text-muted mb-3">
+                                            <i class="fas fa-money-bill-wave me-2"></i>BDT {{ tutor.salary_range }}
+                                        </p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-primary">{{ tutor.availability }}</span>
+                                            <button class="btn btn-sm btn-primary"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#bookAppointmentModal"
+                                                    data-tutor-id="{{ tutor.id }}">
+                                                Book Appointment
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center py-4">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4>No tutors found matching your criteria</h4>
+                    <p class="mb-0">Try adjusting your filters or check back later</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Appointment Modal -->
+<div class="modal fade" id="bookAppointmentModal" tabindex="-1" aria-labelledby="bookAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookAppointmentModalLabel">Book an Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="bookAppointmentForm">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="studentName" class="form-label">Student Name</label>
+                            <input type="text" class="form-control" id="studentName" name="student_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phoneNumber" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" id="phoneNumber" name="phone_number" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="guardianName" class="form-label">Guardian Name</label>
+                            <input type="text" class="form-control" id="guardianName" name="guardian_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="guardianPhone" class="form-label">Guardian Phone</label>
+                            <input type="text" class="form-control" id="guardianPhone" name="guardian_phone" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="className" class="form-label">Select Class</label>
+                            <input type="text" class="form-control" id="className" name="class_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="division" class="form-label">Division</label>
+                            <select class="form-select" id="division" name="division" required>
+                                <option selected disabled>Select Division</option>
+                                {% for division in divisions %}
+                                <option value="{{ division }}">{{ division }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="district" class="form-label">District</label>
+                            <select class="form-select" id="district" name="district" required>
+                                <option selected disabled>Select District</option>
+                                {% for district in districts %}
+                                <option value="{{ district }}">{{ district }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" name="address" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="preferredDays" class="form-label">Preferred Days</label>
+                            <input type="text" class="form-control" id="preferredDays" name="preferred_days" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="preferredTime" class="form-label">Preferred Time</label>
+                            <input type="text" class="form-control" id="preferredTime" name="preferred_time" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer mt-4">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function clearFilters() {
+    window.location.href = "{% url 'tutor_list_general' %}";
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const appointmentModal = document.getElementById('bookAppointmentModal');
+    if (appointmentModal) {
+        appointmentModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const tutorId = button.getAttribute('data-tutor-id');
+            const form = document.getElementById('bookAppointmentForm');
+            form.action = `/book_appointment_general/${tutorId}/`;
+        });
+    }
+});
+</script>
+
+{% endblock %}
